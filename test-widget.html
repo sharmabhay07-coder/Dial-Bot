@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>DialBot Test</title>
+    <link rel="stylesheet" href="./dist/dialbot.css">
+</head>
+
+<body>
+
+    <div id="dialbot-root"></div>
+
+    <script type="module" src="./dist/dialbot.js"></script>
+
+    <script type="module">
+        import "./dist/dialbot.js";
+
+        window.addEventListener("load", () => {
+            if (window.DialBot) {
+                window.DialBot.init("dialbot-root");
+            }
+        });
+    </script>
+</body>
+
+</html>
