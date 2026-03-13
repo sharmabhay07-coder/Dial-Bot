@@ -29,8 +29,14 @@ export default function App() {
   };
 
   useEffect(() => {
+    const el = bottomRef.current?.parentElement;
+    if (!el) return;
+
     if (isNearBottom()) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }, [messages, loading]);
 
