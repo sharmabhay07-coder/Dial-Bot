@@ -23,7 +23,8 @@ export default function App() {
   const [showEmoji, setShowEmoji] = useState(false);
 
   const isNearBottom = () => {
-    const el = document.querySelector('.messages');
+    const el = bottomRef.current?.parentElement;
+    if (!el) return true;
     return el.scrollHeight - el.scrollTop - el.clientHeight < 100;
   };
 
@@ -72,9 +73,9 @@ export default function App() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error?.message || 'Request failed');
-     
+
       if (data.error) throw new Error(data.error);
-     
+
       const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't respond.";
       historyRef.current.push({ role: 'assistant', content: reply });
 
