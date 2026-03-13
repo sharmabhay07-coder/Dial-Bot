@@ -131,7 +131,7 @@ export default function App() {
       <div className="chat-window">
 
         <div className="chat-header">
-          <div className="avatar"> <video src="/assistance.mp4" className='icon-video' autoPlay muted loop /></div>
+          <div className="avatar"> <video src="https://dialbotchat.netlify.app/assistance.mp4" className='icon-video' autoPlay muted loop /></div>
           <div className="header-info">
             <span className="header-name">DialBot</span>
             <span className="header-status">
@@ -146,7 +146,7 @@ export default function App() {
         <div className="messages">
           {messages.map((msg, i) => (
             <div key={i} className={`row ${msg.role}`}>
-              {msg.role === 'bot' && <div className="bot-avatar"> <video src="/assistance.mp4" className='icon-video' autoPlay muted loop /></div>}
+              {msg.role === 'bot' && <div className="bot-avatar"> <video src="https://dialbotchat.netlify.app/assistance.mp4" className='icon-video' autoPlay muted loop /></div>}
               <div className={`bubble ${msg.error ? 'error' : ''}`}>
                 <p>{msg.text}</p>
                 <span className="time">{msg.time}</span>
@@ -156,7 +156,7 @@ export default function App() {
 
           {loading && (
             <div className="row bot">
-              <div className="bot-avatar"> <video src="/assistance.mp4" className='icon-video' autoPlay muted loop /></div>
+              <div className="bot-avatar"> <video src="https://dialbotchat.netlify.app/assistance.mp4" className='icon-video' autoPlay muted loop /></div>
               <div className="bubble typing">
                 <span /><span /><span />
               </div>
