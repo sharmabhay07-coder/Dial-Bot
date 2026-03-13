@@ -20,7 +20,7 @@ export default function App() {
   const inputRef = useRef(null);
   const historyRef = useRef([]);
   const [theme, setTheme] = useState('dark');
-  const [showEmoji, setShowEmoji] = useState(false);
+  // const [showEmoji, setShowEmoji] = useState(false);
 
   const isNearBottom = () => {
     const el = bottomRef.current?.parentElement;
@@ -40,15 +40,15 @@ export default function App() {
     }
   }, [messages, loading]);
 
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (!e.target.closest('.emoji-btn') && !e.target.closest('.EmojiPickerReact')) {
-        setShowEmoji(false);
-      }
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, []);
+  // useEffect(() => {
+  //   const handleClick = (e) => {
+  //     if (!e.target.closest('.emoji-btn') && !e.target.closest('.EmojiPickerReact')) {
+  //       setShowEmoji(false);
+  //     }
+  //   };
+  //   document.addEventListener('click', handleClick);
+  //   return () => document.removeEventListener('click', handleClick);
+  // }, []);
 
   const handleInput = (e) => {
     setInput(e.target.value);
@@ -167,7 +167,7 @@ export default function App() {
           <div ref={bottomRef} />
         </div>
 
-        {showEmoji && (
+        {/* {showEmoji && (
           <div style={{ position: 'absolute', bottom: '70px', right: '16px', zIndex: 10 }}>
             <EmojiPicker
               theme={theme}
@@ -176,7 +176,7 @@ export default function App() {
               width={300}
             />
           </div>
-        )}
+        )} */}
 
         <div className="input-bar">
           <textarea
@@ -189,9 +189,9 @@ export default function App() {
             rows={1}
             disabled={loading}
           />
-          <button className="emoji-btn" onClick={() => setShowEmoji(prev => !prev)}>
+          {/* <button className="emoji-btn" onClick={() => setShowEmoji(prev => !prev)}>
             😊
-          </button>
+          </button> */}
           <button className="send-btn" onClick={sendMessage} disabled={loading || !input.trim()}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="22" y1="2" x2="11" y2="13" />
