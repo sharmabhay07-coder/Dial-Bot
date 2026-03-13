@@ -146,7 +146,7 @@ export default function App() {
         <div className="messages">
           {messages.map((msg, i) => (
             <div key={i} className={`row ${msg.role}`}>
-              {msg.role === 'bot' && <div className="bot-avatar"> <video src={icon} className='icon-video' autoPlay muted loop /></div>}
+              {msg.role === 'bot' && <div className="bot-avatar"> <video src="/assistance.mp4" className='icon-video' autoPlay muted loop /></div>}
               <div className={`bubble ${msg.error ? 'error' : ''}`}>
                 <p>{msg.text}</p>
                 <span className="time">{msg.time}</span>
