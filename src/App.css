@@ -20,7 +20,7 @@
   --border: rgba(255, 255, 255, 0.07);
   --radius: 18px;
   --font: 'DM Sans', system-ui, sans-serif;
-  max-width: 520px;
+  max-width: 720px;
   margin: 40px auto;
 
 }
@@ -36,8 +36,9 @@
 
 /* ── PHONE SHELL ── */
 #dialbot-root .screen {
-  width: 520px;
-  height: 750px;
+  width: 100%;
+  max-width: 720px;
+  height: 800px;
   display: flex;
   flex-direction: column;
   border-radius: 36px;
@@ -114,7 +115,8 @@
   padding: 4px;
   border-radius: 50%;
   transition: transform 0.2s;
-  margin-left: 200px;
+  position: absolute;
+  right: 25px;
 }
 
 #dialbot-root .theme-btn:hover {
@@ -339,7 +341,7 @@
 }
 
 /* LIGHT THEME */
-.screen.light {
+#dialbot-root .screen.light {
   --bg: #f5f5f5;
   --surface: #ffffff;
   --bubble-bot: #e8e8e8;
@@ -349,20 +351,20 @@
   --border: rgba(0, 0, 0, 0.08);
 }
 
-.screen.light .bubble-user .bubble p {
+#dialbot-root .screen.light .bubble-user .bubble p {
   color: white;
 }
 
-.screen.light .time {
+#dialbot-root .screen.light .time {
   color: #999;
 }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 480px) {
+@media (max-width: 500px) {
 
   #dialbot-root .screen {
     width: 100%;
-    max-width: 400px;
+    max-width: 480px;
     height: 90vh;
     border-radius: 28px;
   }

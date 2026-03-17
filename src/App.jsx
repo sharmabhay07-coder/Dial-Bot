@@ -127,6 +127,7 @@ export default function App() {
   };
 
   return (
+    <div id="dialbot-root">
     <div className={`screen ${theme}`}>
       <div className="chat-window">
 
@@ -201,5 +202,6 @@ export default function App() {
 
       </div>
     </div>
+     </div>
   );
 }
