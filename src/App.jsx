@@ -1,59 +1,110 @@
-import { useState, useRef, useEffect } from 'react';
-import './App.css';
-import EmojiPicker from 'emoji-picker-react';
-
+import React, { useEffect, useRef, useState } from 'react';
+import { saveConversations, generateId } from './utils/Storage.js';
+import Sidebar from "./components/Sidebar"
+import Chatwindow from './components/Chatwindow';
+import './App.css'
 
 const SYSTEM_PROMPT = "You are DialBot, a friendly and helpful AI assistant. Keep replies clear and concise.";
 
-function timeNow() {
-  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
 export default function App() {
+
+  const [conversations, setConversations] = useState(() => {
+    try {
+      const data = localStorage.getItem('dialbot_conversations');
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error('Error loading conversations:', e);
+      return [];
+    }
+  });
+  const [currentConvid, setcurrentConvid] = useState(null);
   const [messages, setMessages] = useState([
-    { role: 'bot', text: "Hi! I'm DialBot, your AI assistant. How can I help you today?", time: timeNow() }
+    { role: 'bot', text: "Hi! I'm DialBot, your AI Assistant. How can i help you Today?", time: timeNow() }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const bottomRef = useRef(null);
-  const inputRef = useRef(null);
-  const historyRef = useRef([]);
   const [theme, setTheme] = useState('dark');
-  // const [showEmoji, setShowEmoji] = useState(false);
+  const [showSidebar, setshowSidebar] = useState(() => window.innerWidth >= 901);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 767);
 
-  const isNearBottom = () => {
-    const el = bottomRef.current?.parentElement;
-    if (!el) return true;
-    return el.scrollHeight - el.scrollTop - el.clientHeight < 100;
-  };
+  const historyRef = useRef([]);
 
   useEffect(() => {
-    const el = bottomRef.current?.parentElement;
-    if (!el) return;
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setshowSidebar(width >= 901);
+      setIsMobile(width <= 767);
+    };
 
-    if (isNearBottom()) {
-      el.scrollTo({
-        top: el.scrollHeight,
-        behavior: "smooth",
-      });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (conversations.length === 0) {
+      createNewconversation();
+    } else {
+      loadConversations(conversations[0].id);
     }
-  }, [messages, loading]);
+  }, []);
 
-  // useEffect(() => {
-  //   const handleClick = (e) => {
-  //     if (!e.target.closest('.emoji-btn') && !e.target.closest('.EmojiPickerReact')) {
-  //       setShowEmoji(false);
-  //     }
-  //   };
-  //   document.addEventListener('click', handleClick);
-  //   return () => document.removeEventListener('click', handleClick);
-  // }, []);
+  useEffect(() => {
+    if (currentConvid && conversations.length > 0) {
+      const updatedConversations = conversations.map(conv => conv.id === currentConvid
+        ? { ...conv, messages, updatedAt: new Date().toISOString() } : conv);
+      setConversations(updatedConversations);
+      saveConversations(updatedConversations);
+    }
 
-  const handleInput = (e) => {
-    setInput(e.target.value);
-    e.target.style.height = 'auto';
-    e.target.style.height = Math.min(e.target.scrollHeight, 100) + 'px';
+  }, [messages, currentConvid]);
+
+  function timeNow() {
+    return new Date().toLocaleDateString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  const createNewconversation = () => {
+    const newConv = {
+      id: generateId(),
+      title: 'New Chat',
+      messages: [{ role: 'bot', text: "Hi! I'm Dialbot, your AI assistant. Now how can i help you today?", time: timeNow() }],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const updatedConversations = [newConv, ...conversations];
+    setConversations(updatedConversations);
+    saveConversations(updatedConversations);
+    loadConversations(newConv.id);
   };
+
+  const loadConversations = (convId) => {
+    const conv = conversations.find(c => c.id === convId);
+    if (conv) {
+      setcurrentConvid(convId);
+      setMessages(conv.messages);
+      historyRef.current = conv.messages.filter(m => m.role !== 'bot' || !m.error)
+        .map(m => ({
+          role: m.role === 'user' ? "user" : "assistant",
+          content: m.text,
+        }));
+    }
+  };
+
+  const deleteConversation = (convId) => {
+    if (convId === currentConvid && conversations.length > 1) {
+      const newCurrent = conversations.find(c => c.id !== convId);
+      loadConversations(newCurrent.id);
+    }
+    const updatedConversations = conversations.filter(c => c.id !== convId);
+    setConversations(updatedConversations);
+    saveConversations(updatedConversations);
+  };
+
+  const updatedConversationsTitle = (convId, title) => {
+    const updatedConversations = conversations.map(conv => conv.id === convId ? { ...conv, title } : conv);
+
+    setConversations(updatedConversations);
+    saveConversations(updatedConversations);
+  }
 
   const sendMessage = async () => {
     const text = input.trim();
@@ -61,10 +112,13 @@ export default function App() {
 
     setMessages(prev => [...prev, { role: 'user', text, time: timeNow() }]);
     setInput('');
-    if (inputRef.current) inputRef.current.style.height = 'auto';
     setLoading(true);
 
     historyRef.current.push({ role: 'user', content: text });
+
+    if (historyRef.current.length === 1 && currentConvid) {
+      updatedConversationsTitle(currentConvid, text.substring(0, 30) + (text.length > 30 ? '...' : ''));
+    }
 
     try {
       const res = await fetch('https://dialbotchat.netlify.app/.netlify/functions/chat', {
@@ -77,11 +131,10 @@ export default function App() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Request failed');
-
+      if (!res.ok) throw new Error(data.error?.message || 'Request Failed');
       if (data.error) throw new Error(data.error);
 
-      const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't respond.";
+      const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't respond..";
       historyRef.current.push({ role: 'assistant', content: reply });
 
       const words = reply.split(' ');
@@ -97,7 +150,6 @@ export default function App() {
           return updated;
         });
       }
-
     } catch (err) {
       historyRef.current.pop();
 
@@ -110,98 +162,46 @@ export default function App() {
       } else if (msg.includes('network') || msg.includes('fetch')) {
         friendlyError = '📡 Network error. Please check your connection.';
       }
-
       setMessages(prev => [...prev, { role: 'bot', text: friendlyError, time: timeNow(), error: true }]);
-
     } finally {
       setLoading(false);
-      inputRef.current?.focus();
     }
   };
-
-  const handleKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
   return (
-    <div id="dialbot-root">
-    <div className={`screen ${theme}`}>
-      <div className="chat-window">
+    <>
+      <div id="dialbot-root">
+        <div className={`screen ${theme}`}>
 
-        <div className="chat-header">
-          <div className="avatar"> <video src="https://dialbotchat.netlify.app/assistance.mp4" className='icon-video' autoPlay muted loop /></div>
-          <div className="header-info">
-            <span className="header-name">DialBot</span>
-            <span className="header-status">
-              <span className="status-dot" /> Online
-            </span>
-          </div>
-          <button className="theme-btn" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-        </div>
-
-        <div className="messages">
-          {messages.map((msg, i) => (
-            <div key={i} className={`row ${msg.role}`}>
-              {msg.role === 'bot' && <div className="bot-avatar"> <video src="https://dialbotchat.netlify.app/assistance.mp4" className='icon-video' autoPlay muted loop /></div>}
-              <div className={`bubble ${msg.error ? 'error' : ''}`}>
-                <p>{msg.text}</p>
-                <span className="time">{msg.time}</span>
-              </div>
-            </div>
-          ))}
-
-          {loading && (
-            <div className="row bot">
-              <div className="bot-avatar"> <video src="https://dialbotchat.netlify.app/assistance.mp4" className='icon-video' autoPlay muted loop /></div>
-              <div className="bubble typing">
-                <span /><span /><span />
-              </div>
-            </div>
-          )}
-
-          <div ref={bottomRef} />
-        </div>
-
-        {/* {showEmoji && (
-          <div style={{ position: 'absolute', bottom: '70px', right: '16px', zIndex: 10 }}>
-            <EmojiPicker
-              theme={theme}
-              onEmojiClick={(e) => setInput(prev => prev + e.emoji)}
-              height={340}
-              width={300}
-            />
-          </div>
-        )} */}
-
-        <div className="input-bar">
-          <textarea
-            ref={inputRef}
-            className="input"
-            value={input}
-            onChange={handleInput}
-            onKeyDown={handleKey}
-            placeholder="Write a message..."
-            rows={1}
-            disabled={loading}
+          <Sidebar
+            conversations={conversations}
+            currentConvid={currentConvid}
+            showSidebar={showSidebar}
+            onLoadConversations={(id) => {
+              loadConversations(id);
+              setshowSidebar(false);
+            }}
+            onDeleteConversations={deleteConversation}
+            onCreatenew={() => {
+              createNewconversation();
+              setshowSidebar(false);
+            }}
+            onTogglesidebar={() => setshowSidebar(!showSidebar)}
           />
-          {/* <button className="emoji-btn" onClick={() => setShowEmoji(prev => !prev)}>
-            😊
-          </button> */}
-          <button className="send-btn" onClick={sendMessage} disabled={loading || !input.trim()}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="22" y1="2" x2="11" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-          </button>
-        </div>
+          {showSidebar && <div className="overlay visible" onClick={() => setshowSidebar(false)} />}
 
+          <Chatwindow
+            messages={messages}
+            input={input}
+            loading={loading}
+            theme={theme}
+            onInputchange={setInput}
+            onSendmessage={sendMessage}
+            onTogglesidebar={() => setshowSidebar(!showSidebar)}
+            onToggletheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+            onDeletemessage={(idx) => setMessages(prev => prev.filter((_, i) => i !== idx))}
+          />
+        </div>
       </div>
-    </div>
-     </div>
-  );
+    </>
+  )
 }
