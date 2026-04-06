@@ -58,6 +58,7 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text);
+  margin: 0px;
 }
 
 #dialbot-root .menu-btn {
