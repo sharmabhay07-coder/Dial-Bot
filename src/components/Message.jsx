@@ -13,7 +13,7 @@ export default function Message({ message, messageIndex, onDelete }) {
         {message.role === 'bot' && (
           <div className="bot-avatar">
             <video
-              src="https://dialbotchat.netlify.app/assistance.mp4"
+              src="https://dialbot1231.netlify.app/assistance.mp4"
               className="icon-video"
               autoPlay
               muted

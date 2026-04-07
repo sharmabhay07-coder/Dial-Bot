@@ -121,7 +121,7 @@ export default function App() {
     }
 
     try {
-      const res = await fetch('https://dialbotchat.netlify.app/.netlify/functions/chat', {
+      const res = await fetch('https://dialbot1231.netlify.app/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

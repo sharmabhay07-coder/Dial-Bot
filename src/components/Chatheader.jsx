@@ -9,7 +9,7 @@ export default function Chatheader({
     <>
       <div className="chat-header">
         <div className="avatar">
-          <video src="https://dialbotchat.netlify.app/assistance.mp4"
+          <video src="https://dialbot1231.netlify.app/assistance.mp4"
             className="icon-video"
             autoPlay
             muted
