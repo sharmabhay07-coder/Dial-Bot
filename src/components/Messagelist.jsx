@@ -16,7 +16,7 @@ export default function Messagelist({
             key={i}
             message={msg}
             messageIndex={i}
-            onDelete={onDeletemessage}
+            // onDelete={onDeletemessage}
           />
         ))}
 

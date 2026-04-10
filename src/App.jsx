@@ -41,10 +41,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (conversations.length === 0) {
-      createNewconversation();
-    } else {
-      loadConversations(conversations[0].id);
+    if (currentConvid === null) {
+      if (conversations.length === 0) {
+        createNewconversation();
+      } else if (conversations[0]?.id) {
+        loadConversations(conversations[0].id);
+      }
     }
   }, []);
 
@@ -78,7 +80,7 @@ export default function App() {
 
   const loadConversations = (convId) => {
     const conv = conversations.find(c => c.id === convId);
-    if (conv) {
+    if (conv && conv.messages) {
       setcurrentConvid(convId);
       setMessages(conv.messages);
       historyRef.current = conv.messages.filter(m => m.role !== 'bot' || !m.error)
@@ -182,7 +184,25 @@ export default function App() {
             }}
             onDeleteConversations={deleteConversation}
             onCreatenew={() => {
-              createNewconversation();
+              const newConv = {
+                id: generateId(),
+                title: 'New Chat',
+                messages: [{ role: 'bot', text: "Hi! I'm DialBot, your AI assistant. Now how can i help you today?", time: timeNow() }],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              };
+
+              const updatedConversations = [newConv, ...conversations];
+              setConversations(updatedConversations);
+              saveConversations(updatedConversations);
+              setcurrentConvid(newConv.id);
+              setMessages(newConv.messages);
+
+              historyRef.current = newConv.messages.filter(m => m.role !== 'bot' || !m.error)
+                .map(m => ({
+                  role: m.role === 'user' ? "user" : "assistant",
+                  content: m.text,
+                }));
               setshowSidebar(false);
             }}
             onTogglesidebar={() => setshowSidebar(!showSidebar)}

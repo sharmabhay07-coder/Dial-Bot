@@ -31,12 +31,12 @@ export default function Message({ message, messageIndex, onDelete }) {
             >
               🗐
             </button>
-            <button className="action-btn"
+            {/* <button className="action-btn"
               onClick={() => onDelete(messageIndex)}
               title="Delete"
             >
               ❌
-            </button>
+            </button> */}
           </div>
         </div>
 

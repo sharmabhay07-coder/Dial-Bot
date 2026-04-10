@@ -93,7 +93,7 @@ body {
 }
 
 #dialbot-root .search-box {
-  padding: 12px 16px;
+  padding: 12px 15px;
   border-bottom: 1px solid var(--border);
   position: relative;
 }
@@ -103,7 +103,7 @@ body {
   background: var(--bg);
   border: 1px solid rgba(99, 102, 241, 0.3);
   border-radius: 12px;
-  padding: 10px 14px 10px 36px;
+  padding: 15px 15px 15px 30px;
   color: var(--text);
   font-family: var(--font);
   font-size: 0.85rem;
@@ -769,7 +769,32 @@ body {
 
   #dialbot-root .sidebar.open {
     width: 200px;
-    padding: 0px 15px;
+    padding: 0px 12px;
+  }
+
+  #dialbot-root .sidebar.open .search-box {
+    padding: 12px 0;
+  }
+
+  #dialbot-root .sidebar.open .search-input {
+    width: 75%;
+  }
+
+  #dialbot-root .sidebar.open .new-chat-btn {
+    margin: 12px 0;
+    width: calc(100% - 24px);
+    padding: 10px 14px;
+  }
+
+  #dialbot-root .sidebar.open .conversations-list {
+    padding: 8px 0;
+  }
+
+  #dialbot-root .sidebar.open .conv-item {
+    padding: 12px 40px;
+    margin: 10px 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .hamburger-btn {
