@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { saveConversations, generateId } from './utils/Storage.js';
+import { saveConversations, generateId,} from './utils/Storage.js';
 import Sidebar from "./components/Sidebar"
 import Chatwindow from './components/Chatwindow';
 import './App.css'
@@ -43,7 +43,21 @@ export default function App() {
   useEffect(() => {
     if (currentConvid === null) {
       if (conversations.length === 0) {
-        createNewconversation();
+        const newConv = {
+          id: generateId(),
+          title: 'New Chat',
+          messages: [{ role: 'bot', text: "Hi! I'm DialBot, your AI assistant. How can I help you today?", time: timeNow() }],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setConversations(prev => {
+          const updated = [newConv, ...prev];
+          saveConversations(updated);
+          return updated;
+        });
+        setcurrentConvid(newConv.id);
+        setMessages(newConv.messages);
+        historyRef.current = [];
       } else if (conversations[0]?.id) {
         loadConversations(conversations[0].id);
       }
@@ -64,20 +78,6 @@ export default function App() {
   function timeNow() {
     return new Date().toLocaleDateString([], { hour: '2-digit', minute: '2-digit' });
   }
-
-  // const createNewconversation = () => {
-  //   const newConv = {
-  //     id: generateId(),
-  //     title: 'New Chat',
-  //     messages: [{ role: 'bot', text: "Hi! I'm Dialbot, your AI assistant. Now how can i help you today?", time: timeNow() }],
-  //     createdAt: new Date().toISOString(),
-  //     updatedAt: new Date().toISOString(),
-  //   };
-  //   const updatedConversations = [newConv, ...conversations];
-  //   setConversations(updatedConversations);
-  //   saveConversations(updatedConversations);
-  //   loadConversations(newConv.id);
-  // };
 
   const loadConversations = (convId, convList = conversations) => {
     const conv = convList.find(c => c.id === convId);
