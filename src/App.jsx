@@ -4,7 +4,7 @@ import Sidebar from "./components/Sidebar"
 import Chatwindow from './components/Chatwindow';
 import './App.css'
 
-const SYSTEM_PROMPT = "You are DialBot, a friendly and helpful AI assistant. Keep replies clear and concise.";
+// const SYSTEM_PROMPT = "You are DialBot, a friendly and helpful AI assistant. Keep replies clear and concise.";
 
 export default function App() {
 
@@ -25,7 +25,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [showSidebar, setshowSidebar] = useState(() => window.innerWidth >= 901);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 767);
+  // const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 767);
 
   const historyRef = useRef([]);
 
@@ -33,7 +33,7 @@ export default function App() {
     const handleResize = () => {
       const width = window.innerWidth;
       setshowSidebar(width >= 901);
-      setIsMobile(width <= 767);
+      // setIsMobile(width <= 767);
     };
 
     window.addEventListener('resize', handleResize);
@@ -51,43 +51,42 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (currentConvid && conversations.length > 0) {
-      const updatedConversations = conversations.map(conv => conv.id === currentConvid
+    if (!currentConvid) return;
+    setConversations(prev => {
+      if (prev.length === 0) return prev;
+      const updated = prev.map(conv => conv.id === currentConvid
         ? { ...conv, messages, updatedAt: new Date().toISOString() } : conv);
-      setConversations(updatedConversations);
-      saveConversations(updatedConversations);
-    }
-
+      saveConversations(updated);
+      return updated;
+    });
   }, [messages, currentConvid]);
 
   function timeNow() {
     return new Date().toLocaleDateString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  const createNewconversation = () => {
-    const newConv = {
-      id: generateId(),
-      title: 'New Chat',
-      messages: [{ role: 'bot', text: "Hi! I'm Dialbot, your AI assistant. Now how can i help you today?", time: timeNow() }],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    const updatedConversations = [newConv, ...conversations];
-    setConversations(updatedConversations);
-    saveConversations(updatedConversations);
-    loadConversations(newConv.id);
-  };
+  // const createNewconversation = () => {
+  //   const newConv = {
+  //     id: generateId(),
+  //     title: 'New Chat',
+  //     messages: [{ role: 'bot', text: "Hi! I'm Dialbot, your AI assistant. Now how can i help you today?", time: timeNow() }],
+  //     createdAt: new Date().toISOString(),
+  //     updatedAt: new Date().toISOString(),
+  //   };
+  //   const updatedConversations = [newConv, ...conversations];
+  //   setConversations(updatedConversations);
+  //   saveConversations(updatedConversations);
+  //   loadConversations(newConv.id);
+  // };
 
-  const loadConversations = (convId) => {
-    const conv = conversations.find(c => c.id === convId);
+  const loadConversations = (convId, convList = conversations) => {
+    const conv = convList.find(c => c.id === convId);
     if (conv && conv.messages) {
       setcurrentConvid(convId);
       setMessages(conv.messages);
-      historyRef.current = conv.messages.filter(m => m.role !== 'bot' || !m.error)
-        .map(m => ({
-          role: m.role === 'user' ? "user" : "assistant",
-          content: m.text,
-        }));
+      historyRef.current = conv.messages
+        .filter(m => m.role !== 'bot' || !m.error)
+        .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }));
     }
   };
 
@@ -102,10 +101,15 @@ export default function App() {
   };
 
   const updatedConversationsTitle = (convId, title) => {
-    const updatedConversations = conversations.map(conv => conv.id === convId ? { ...conv, title } : conv);
+    setConversations(prev => {
+      const updated = prev.map(conv => conv.id === convId ? { ...conv, title } : conv);
+      saveConversations(updated);
+      return updated;
+    });
 
-    setConversations(updatedConversations);
-    saveConversations(updatedConversations);
+    // const updatedConversations = conversations.map(conv => conv.id === convId ? { ...conv, title } : conv);
+    // setConversations(updatedConversations);
+    // saveConversations(updatedConversations);
   }
 
   const sendMessage = async () => {
@@ -187,22 +191,18 @@ export default function App() {
               const newConv = {
                 id: generateId(),
                 title: 'New Chat',
-                messages: [{ role: 'bot', text: "Hi! I'm DialBot, your AI assistant. Now how can i help you today?", time: timeNow() }],
+                messages: [{ role: 'bot', text: "Hi! I'm DialBot, your AI assistant. How can I help you today?", time: timeNow() }],
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
               };
-
-              const updatedConversations = [newConv, ...conversations];
-              setConversations(updatedConversations);
-              saveConversations(updatedConversations);
+              setConversations(prev => {
+                const updated = [newConv, ...prev];
+                saveConversations(updated);
+                return updated;
+              });
               setcurrentConvid(newConv.id);
               setMessages(newConv.messages);
-
-              historyRef.current = newConv.messages.filter(m => m.role !== 'bot' || !m.error)
-                .map(m => ({
-                  role: m.role === 'user' ? "user" : "assistant",
-                  content: m.text,
-                }));
+              historyRef.current = [];
               setshowSidebar(false);
             }}
             onTogglesidebar={() => setshowSidebar(!showSidebar)}

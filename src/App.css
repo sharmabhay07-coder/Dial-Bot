@@ -14,6 +14,8 @@ body {
   --text: #e8e8f0;
   --text-muted: #888;
   --border: rgba(255, 255, 255, 0.07);
+  --input-bg: #282643;
+  --input-placeholder: #4a4a6a;
   --radius: 18px;
   --font: 'DM Sans', system-ui, sans-serif;
   max-width: 1400px;
@@ -23,7 +25,7 @@ body {
 #dialbot-root .screen {
   width: 100%;
   max-width: 100%;
-  height: 800px;
+  height: 780px;
   display: flex;
   flex-direction: row;
   border-radius: 20px;
@@ -33,7 +35,6 @@ body {
     0 32px 80px rgba(0, 0, 0, 0.6);
 }
 
-/* ── SIDEBAR ── */
 #dialbot-root .sidebar {
   width: 280px;
   background: var(--surface);
@@ -46,7 +47,7 @@ body {
 
 #dialbot-root .sidebar-header {
   width: 90%;
-  padding: 12px 15px;
+  padding: 19px 15px;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
@@ -198,7 +199,7 @@ body {
 
 #dialbot-root .conv-item.active {
   background: rgba(99, 102, 241, 0.2);
-  border-left: 3px solid var(--accent);
+  border-left: 15px solid var(--accent);
 }
 
 #dialbot-root .conv-content {
@@ -346,12 +347,10 @@ body {
   color: #a0a0c0;
 }
 
-/* OVERLAY */
 #dialbot-root .overlay {
   display: none;
 }
 
-/* ── CHAT WINDOW ── */
 #dialbot-root .chat-window {
   flex: 1;
   display: flex;
@@ -360,7 +359,6 @@ body {
   overflow: hidden;
 }
 
-/* ── HEADER ── */
 #dialbot-root .chat-header {
   display: flex;
   align-items: center;
@@ -480,7 +478,6 @@ body {
   background: var(--accent-hi);
 }
 
-/* bubble row */
 #dialbot-root .row {
   display: flex;
   align-items: flex-end;
@@ -515,7 +512,6 @@ body {
   flex-shrink: 0;
 }
 
-/* bubble */
 #dialbot-root .bubble {
   max-width: 60%;
   padding: 10px 14px;
@@ -587,7 +583,6 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* typing dots */
 #dialbot-root .bubble.typing {
   display: flex;
   gap: 5px;
@@ -627,7 +622,7 @@ body {
   }
 }
 
-/* ── INPUT BAR ── */
+
 #dialbot-root .input-bar {
   display: flex;
   align-items: center;
@@ -640,8 +635,8 @@ body {
 
 #dialbot-root .input {
   flex: 1;
-  background: var(--bg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--input-bg);
+  border: 2px solid rgba(255, 255, 255, 0.08);
   border-radius: 22px;
   padding: 11px 16px;
   color: var(--text);
@@ -656,11 +651,11 @@ body {
 }
 
 #dialbot-root .input::placeholder {
-  color: #4a4a6a;
+  color: var(--input-placeholder);
 }
 
 #dialbot-root .input:focus {
-  border-color: rgba(99, 102, 241, 0.5);
+  border-color: rgba(4, 97, 248, 0.5);
 }
 
 #dialbot-root .input:disabled {
@@ -696,7 +691,6 @@ body {
   box-shadow: none;
 }
 
-/* LIGHT THEME */
 #dialbot-root .screen.light {
   --bg: #f5f5f5;
   --surface: #ffffff;
@@ -704,6 +698,8 @@ body {
   --bubble-user: #cececf;
   --text: #1a1a1a;
   --text-muted: #666;
+  --input-bg: #f0f0f5;
+  --input-placeholder: #aaaaaa;
   --border: rgba(0, 0, 0, 0.08);
 }
 
@@ -786,15 +782,17 @@ body {
     padding: 10px 14px;
   }
 
-  #dialbot-root .sidebar.open .conversations-list {
-    padding: 8px 0;
+  #dialbot-root .sidebar.open .conversation-list {
+    width: 90%;
+
   }
 
   #dialbot-root .sidebar.open .conv-item {
-    padding: 12px 40px;
+    padding: 12px 20px;
     margin: 10px 0;
     width: 100%;
     box-sizing: border-box;
+    gap: 40px;
   }
 
   .hamburger-btn {
@@ -849,6 +847,19 @@ body {
     padding: 16px 12px;
   }
 
+  #dialbot-root .sidebar:not(.open) {
+    width: 40px;
+  }
+
+  #dialbot-root .sidebar:not(.open) .sidebar-header {
+    padding: 1px 0px;
+  }
+#dialbot-root .sidebar-header{
+ padding: 5px 15px; 
+}
+  #dialbot-root .sidebar.open{
+  padding: 20px 12px;
+  } 
   #dialbot-root .bubble {
     max-width: 90%;
     font-size: 0.85rem;

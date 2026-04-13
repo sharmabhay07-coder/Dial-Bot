@@ -33,7 +33,7 @@ export default function Sidebar({
             convTitle: conv.title,
             messageIdx: idx,
             message: msg,
-            context: msg.text.subString(0, 100),
+            context: msg.text.substring(0, 100),
           });
         }
       });

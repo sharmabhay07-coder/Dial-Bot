@@ -23,7 +23,7 @@ export default function Chatwindow({
     if (el && isNearbottom()) {
       el.scrollTo({
         top: el.scrollHeight,
-        behaviour: 'smooth',
+        behavior: 'smooth',
       });
     }
   }, [messages, loading]);
