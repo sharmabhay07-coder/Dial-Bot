@@ -6,9 +6,9 @@ body {
 
 #dialbot-root {
   --bg: #12121f;
-  --surface: #1e1e32;
-  --bubble-bot: #272740;
-  --bubble-user: #3b3b6b;
+  --surface: #13131b;
+  --bubble-bot: #2b2b39;
+  --bubble-user: #555592;
   --accent: #6366f1;
   --accent-hi: #818cf8;
   --text: #e8e8f0;
@@ -223,7 +223,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: width 0.5s ease-in;
+  transition: width 0.3s ease;
 }
 
 #dialbot-root .sidebar:not(.open) .sidebar-header {
@@ -688,7 +688,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: width 0.3s ease;
+    transition: width 0.5s ease;
   }
 
   #dialbot-root .sidebar.open {
@@ -701,13 +701,13 @@ body {
   }
 
   #dialbot-root .sidebar.open .search-input {
-    width: 75%;
+    width: 73%;
   }
 
   #dialbot-root .sidebar.open .new-chat-btn {
     margin: 12px 0;
-    width: calc(100% - 24px);
-    padding: 10px 14px;
+    width: calc(100% - 20px);
+    padding: 15px 0px;
   }
 
   #dialbot-root .sidebar.open .conversation-list {
@@ -765,8 +765,21 @@ body {
     padding: 5px 15px;
   }
 
+  #dialbot-root .sidebar.open .new-chat-btn {
+    width: calc(100% - 40px);
+  }
+
   #dialbot-root .sidebar.open {
-    padding: 20px 12px;
+    padding: 20px 15px;
+    width: 100%;
+  }
+
+  #dialbot-root .sidebar.open .search-box {
+    width: 90%;
+  }
+
+  #dialbot-root .sidebar.open .search-input {
+    width: 86%;
   }
 
   #dialbot-root .bubble {
