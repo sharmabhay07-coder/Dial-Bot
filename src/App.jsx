@@ -123,7 +123,7 @@ export default function App() {
     historyRef.current.push({ role: 'user', content: text });
 
     if (historyRef.current.length === 1 && currentConvid) {
-      fetch('/api/chat', {
+      fetch('https://dial-bot.vercel.app/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -142,7 +142,7 @@ export default function App() {
     }
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('https://dial-bot.vercel.app/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

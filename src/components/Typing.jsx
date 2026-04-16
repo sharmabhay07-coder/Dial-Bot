@@ -5,7 +5,7 @@ export default function Typing() {
     <>
       <div className="row bot">
         <div className="bot-avatar">
-          <video src="/assistance.mp4"
+          <video src="https://dial-bot.vercel.app/assistance.mp4"
             className="icon-video"
             autoPlay
             muted

@@ -13,7 +13,7 @@ export default function Message({ message, messageIndex, onDelete }) {
         {message.role === 'bot' && (
           <div className="bot-avatar">
             <video
-              src="/assistance.mp4"
+              src="https://dial-bot.vercel.app/assistance.mp4"
               className="icon-video"
               autoPlay
               muted
