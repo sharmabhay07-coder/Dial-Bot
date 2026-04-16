@@ -5,7 +5,7 @@ export default function Typing() {
     <>
       <div className="row bot">
         <div className="bot-avatar">
-          <video src="https://dialbot1231.netlify.app/assistance.mp4"
+          <video src="/assistance.mp4"
             className="icon-video"
             autoPlay
             muted

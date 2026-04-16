@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { saveConversations, generateId,} from './utils/Storage.js';
+import { saveConversations, generateId, } from './utils/Storage.js';
 import Sidebar from "./components/Sidebar"
 import Chatwindow from './components/Chatwindow';
 import './App.css'
@@ -123,11 +123,26 @@ export default function App() {
     historyRef.current.push({ role: 'user', content: text });
 
     if (historyRef.current.length === 1 && currentConvid) {
-      updatedConversationsTitle(currentConvid, text.substring(0, 30) + (text.length > 30 ? '...' : ''));
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Generate a short 4-5 word chat title for this message: "${text}". Reply with only the title, no quotes, no explanation.`,
+          history: []
+        }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          const title = data.choices?.[0]?.message?.content?.trim();
+          if (title) updatedConversationsTitle(currentConvid, title);
+        })
+        .catch(() => {
+          updatedConversationsTitle(currentConvid, text.substring(0, 30) + (text.length > 30 ? '...' : ''));
+        });
     }
 
     try {
-      const res = await fetch('https://dialbot1231.netlify.app/.netlify/functions/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
