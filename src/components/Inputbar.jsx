@@ -4,13 +4,17 @@ export default function Inputbar({
   input,
   loading,
   inputRef,
+  isEmpty,
   onInputchange,
   onKeydown,
   onSendmessage,
 }) {
   return (
-    <>
-      <div className="input-bar">
+    <div className={`input-bar ${isEmpty ? 'centered' : ''}`}>
+      {isEmpty && (
+        <p className="input-bar-greeting">What can I help you with?</p>
+      )}
+      <div className="input-bar-inner">
         <textarea
           ref={inputRef}
           className="input"
@@ -40,6 +44,6 @@ export default function Inputbar({
           </svg>
         </button>
       </div>
-    </>
+    </div>
   );
 }

@@ -8,6 +8,7 @@ export default function Chatwindow({
   input,
   loading,
   theme,
+  isNewChat,
   onInputchange,
   onSendmessage,
   onTogglesidebar,
@@ -18,13 +19,13 @@ export default function Chatwindow({
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
+  // true when no real messages yet
+  const isEmpty = messages.length === 0;
+
   useEffect(() => {
     const el = bottomRef.current?.parentElement;
     if (el && isNearbottom()) {
-      el.scrollTo({
-        top: el.scrollHeight,
-        behavior: 'smooth',
-      });
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     }
   }, [messages, loading]);
 
@@ -53,30 +54,29 @@ export default function Chatwindow({
   };
 
   return (
-    <>
-      <div className="chat-window">
-        <Chatheader
-          theme={theme}
-          onTogglesidebar={onTogglesidebar}
-          onToggletheme={onToggletheme}
-        />
+    <div className="chat-window">
+      <Chatheader
+        theme={theme}
+        onTogglesidebar={onTogglesidebar}
+        onToggletheme={onToggletheme}
+      />
 
-        <Messagelist
-          messages={messages}
-          loading={loading}
-          bottomRef={bottomRef}
-          onDeletemessage={onDeletemessage}
-        />
+      <Messagelist
+        messages={messages}
+        loading={loading}
+        bottomRef={bottomRef}
+        onDeletemessage={onDeletemessage}
+      />
 
-        <Inputbar
-          input={input}
-          loading={loading}
-          inputRef={inputRef}
-          onInputchange={handleInput}
-          onSendmessage={handleSend}
-          onKeydown={handleKeydown}
-        />
-      </div>
-    </>
+      <Inputbar
+        input={input}
+        loading={loading}
+        inputRef={inputRef}
+        isEmpty={isNewChat}
+        onInputchange={handleInput}
+        onSendmessage={handleSend}
+        onKeydown={handleKeydown}
+      />
+    </div>
   );
 }

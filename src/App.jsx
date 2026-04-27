@@ -18,14 +18,23 @@ export default function App() {
     }
   });
   const [currentConvid, setcurrentConvid] = useState(null);
-  const [messages, setMessages] = useState([
-    { role: 'bot', text: "Hi! I'm DialBot, your AI Assistant. How can i help you Today?", time: timeNow() }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState('light');
   const [showSidebar, setshowSidebar] = useState(() => window.innerWidth >= 901);
-  // const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 767);
+  const [isNewChat, setIsNewChat] = useState(() => {
+    try {
+      const data = localStorage.getItem('dialbot_conversations');
+      const convs = data ? JSON.parse(data) : [];
+      if (convs.length === 0) return true;
+      const firstConv = convs[0];
+      const hasUserMessages = firstConv.messages?.some(m => m.role === 'user');
+      return !hasUserMessages;
+    } catch {
+      return true;
+    }
+  });
 
   const historyRef = useRef([]);
 
@@ -33,7 +42,6 @@ export default function App() {
     const handleResize = () => {
       const width = window.innerWidth;
       setshowSidebar(width >= 901);
-      // setIsMobile(width <= 767);
     };
 
     window.addEventListener('resize', handleResize);
@@ -41,12 +49,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (currentConvid) {
+      localStorage.setItem('dialbot_current_conv', currentConvid);
+    }
+  }, [currentConvid]);
+
+  useEffect(() => {
     if (currentConvid === null) {
       if (conversations.length === 0) {
         const newConv = {
           id: generateId(),
           title: 'New Chat',
-          messages: [{ role: 'bot', text: "Hi! I'm DialBot, your AI assistant. How can I help you today?", time: timeNow() }],
+          messages: [],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -57,9 +71,14 @@ export default function App() {
         });
         setcurrentConvid(newConv.id);
         setMessages(newConv.messages);
+        setIsNewChat(true);
         historyRef.current = [];
-      } else if (conversations[0]?.id) {
-        loadConversations(conversations[0].id);
+      } else {
+        const lastOpenedId = localStorage.getItem('dialbot_current_conv');
+        const convToLoad = conversations.find(c => c.id === lastOpenedId)
+          ? lastOpenedId
+          : conversations[0].id;
+        loadConversations(convToLoad);
       }
     }
   }, []);
@@ -84,6 +103,8 @@ export default function App() {
     if (conv && conv.messages) {
       setcurrentConvid(convId);
       setMessages(conv.messages);
+      const hasUserMessages = conv.messages.some(m => m.role === 'user');
+      setIsNewChat(!hasUserMessages);
       historyRef.current = conv.messages
         .filter(m => m.role !== 'bot' || !m.error)
         .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }));
@@ -91,13 +112,31 @@ export default function App() {
   };
 
   const deleteConversation = (convId) => {
-    if (convId === currentConvid && conversations.length > 1) {
-      const newCurrent = conversations.find(c => c.id !== convId);
-      loadConversations(newCurrent.id);
-    }
     const updatedConversations = conversations.filter(c => c.id !== convId);
-    setConversations(updatedConversations);
-    saveConversations(updatedConversations);
+
+    if (updatedConversations.length === 0) {
+    
+      const newConv = {
+        id: generateId(),
+        title: 'New Chat',
+        messages: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const withNew = [newConv];
+      setConversations(withNew);
+      saveConversations(withNew);
+      setcurrentConvid(newConv.id);
+      setMessages([]);
+      setIsNewChat(true);
+      historyRef.current = [];
+    } else {
+      if (convId === currentConvid) {
+        loadConversations(updatedConversations[0].id, updatedConversations);
+      }
+      setConversations(updatedConversations);
+      saveConversations(updatedConversations);
+    }
   };
 
   const updatedConversationsTitle = (convId, title) => {
@@ -116,13 +155,16 @@ export default function App() {
     const text = input.trim();
     if (!text || loading) return;
 
+    const convId = currentConvid;
+
+    setIsNewChat(false);
     setMessages(prev => [...prev, { role: 'user', text, time: timeNow() }]);
     setInput('');
     setLoading(true);
 
     historyRef.current.push({ role: 'user', content: text });
 
-    if (historyRef.current.length === 1 && currentConvid) {
+    if (historyRef.current.length === 1 && convId) {
       fetch('https://dial-bot.vercel.app/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -134,10 +176,10 @@ export default function App() {
         .then(res => res.json())
         .then(data => {
           const title = data.choices?.[0]?.message?.content?.trim();
-          if (title) updatedConversationsTitle(currentConvid, title);
+          if (title) updatedConversationsTitle(convId, title);
         })
         .catch(() => {
-          updatedConversationsTitle(currentConvid, text.substring(0, 30) + (text.length > 30 ? '...' : ''));
+          updatedConversationsTitle(convId, text.substring(0, 30) + (text.length > 30 ? '...' : ''));
         });
     }
 
@@ -160,11 +202,39 @@ export default function App() {
 
       const words = reply.split(' ');
       let current = '';
+
+      if (currentConvid !== convId) {
+        setConversations(prev => {
+          const updated = prev.map(conv => conv.id === convId ? {
+            ...conv,
+            messages: [...conv.messages, { role: 'bot', text: reply, time: timeNow() }],
+            updatedAt: new Date().toISOString()
+          } : conv);
+          saveConversations(updated);
+          return updated;
+        });
+        return;
+      }
+
       setMessages(prev => [...prev, { role: 'bot', text: '', time: timeNow() }]);
 
       for (let i = 0; i < words.length; i++) {
         await new Promise(res => setTimeout(res, 50));
         current += (i === 0 ? '' : ' ') + words[i];
+
+        if (currentConvid !== convId) {
+          setConversations(prev => {
+            const updated = prev.map(conv => conv.id === convId ? {
+              ...conv,
+              messages: [...conv.messages, { role: 'bot', text: current, time: timeNow() }],
+              updatedAt: new Date().toISOString()
+            } : conv);
+            saveConversations(updated);
+            return updated;
+          });
+          return;
+        }
+
         setMessages(prev => {
           const updated = [...prev];
           updated[updated.length - 1] = { ...updated[updated.length - 1], text: current };
@@ -183,7 +253,9 @@ export default function App() {
       } else if (msg.includes('network') || msg.includes('fetch')) {
         friendlyError = '📡 Network error. Please check your connection.';
       }
-      setMessages(prev => [...prev, { role: 'bot', text: friendlyError, time: timeNow(), error: true }]);
+      if (currentConvid === convId) {
+        setMessages(prev => [...prev, { role: 'bot', text: friendlyError, time: timeNow(), error: true }]);
+      }
     } finally {
       setLoading(false);
     }
@@ -206,7 +278,7 @@ export default function App() {
               const newConv = {
                 id: generateId(),
                 title: 'New Chat',
-                messages: [{ role: 'bot', text: "Hi! I'm DialBot, your AI assistant. How can I help you today?", time: timeNow() }],
+                messages: [],
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
               };
@@ -217,6 +289,7 @@ export default function App() {
               });
               setcurrentConvid(newConv.id);
               setMessages(newConv.messages);
+              setIsNewChat(true);
               historyRef.current = [];
               setshowSidebar(false);
             }}
@@ -229,10 +302,11 @@ export default function App() {
             input={input}
             loading={loading}
             theme={theme}
+            isNewChat={isNewChat}
             onInputchange={setInput}
             onSendmessage={sendMessage}
             onTogglesidebar={() => setshowSidebar(!showSidebar)}
-            onToggletheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+            onToggletheme={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
             onDeletemessage={(idx) => setMessages(prev => prev.filter((_, i) => i !== idx))}
           />
         </div>

@@ -5,17 +5,17 @@ body {
 }
 
 #dialbot-root {
-  --bg: #12121f;
-  --surface: #13131b;
+  --bg: #030306;
+  --surface: #070721;
   --bubble-bot: #2b2b39;
   --bubble-user: #555592;
   --accent: #6366f1;
   --accent-hi: #818cf8;
   --text: #e8e8f0;
   --text-muted: #888;
-  --border: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.263);
   --input-bg: #282643;
-  --input-placeholder: #4a4a6a;
+  --input-placeholder: #eeeef4;
   --radius: 18px;
   --font: 'DM Sans', system-ui, sans-serif;
 }
@@ -323,12 +323,18 @@ body {
   display: none;
 }
 
+/* ── Chat Window ── */
 #dialbot-root .chat-window {
   flex: 1;
   display: flex;
   flex-direction: column;
   background: var(--bg);
   overflow: hidden;
+  position: relative;
+}
+
+#dialbot-root .screen:not(.light) .chat-window {
+  background: linear-gradient(135deg, #030306 0%, #0a0a2e 50%, #0d0b1f 100%);
 }
 
 #dialbot-root .chat-header {
@@ -560,6 +566,7 @@ body {
   }
 }
 
+/* ── Input Bar — Normal (bottom) state ── */
 #dialbot-root .input-bar {
   display: flex;
   align-items: center;
@@ -568,6 +575,54 @@ body {
   background: var(--surface);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+#dialbot-root .input-bar.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(620px, 88%);
+  flex-direction: column;
+  align-items: stretch;
+  background: transparent;
+  border-top: none;
+  gap: 14px;
+  padding: 0;
+  z-index: 10;
+}
+
+#dialbot-root .input-bar-greeting {
+  text-align: center;
+  font-size: 2.15rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  opacity: 0.9;
+  letter-spacing: -0.2px;
+}
+
+#dialbot-root .input-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#dialbot-root .input-bar:not(.centered) .input-bar-inner {
+  flex: 1;
+  gap: 10px;
+}
+
+#dialbot-root .input-bar.centered .input-bar-inner {
+  background: var(--surface);
+  border: 2px solid rgba(253 253 255 / 80%);
+  border-radius: 22px;
+  padding: 6px 8px 6px 18px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 #dialbot-root .input {
@@ -585,6 +640,18 @@ body {
   overflow-y: auto;
   line-height: 1.4;
   transition: border-color 0.2s;
+}
+
+/* Textarea borderless inside centered card */
+#dialbot-root .input-bar.centered .input {
+  background: transparent;
+  border: none;
+  padding: 10px 0;
+  border-radius: 0;
+}
+
+#dialbot-root .input-bar.centered .input:focus {
+  border-color: transparent;
 }
 
 #dialbot-root .input::placeholder {
@@ -628,6 +695,7 @@ body {
   box-shadow: none;
 }
 
+/* ── Light Mode ── */
 #dialbot-root .screen.light {
   --bg: #f5f5f5;
   --surface: #ffffff;
@@ -636,7 +704,7 @@ body {
   --text: #0d0c0c;
   --text-muted: #666;
   --input-bg: #f0f0f5;
-  --input-placeholder: #aaaaaa;
+  --input-placeholder: #2d2b2b;
   --border: rgba(0, 0, 0, 0.08);
 }
 
@@ -648,6 +716,13 @@ body {
   border-color: rgba(99, 102, 241, 0.2);
 }
 
+#dialbot-root .screen.light .input-bar.centered .input-bar-inner {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Desktop ── */
 @media (min-width: 901px) {
   #dialbot-root .sidebar {
     width: 280px;
@@ -667,8 +742,8 @@ body {
   }
 }
 
+/* ── Tablet ── */
 @media (max-width: 900px) {
-
   #dialbot-root {
     max-width: 100%;
   }
@@ -737,8 +812,13 @@ body {
   #dialbot-root .bubble {
     max-width: 85%;
   }
+
+  #dialbot-root .input-bar.centered {
+    width: min(560px, 85%);
+  }
 }
 
+/* ── Mobile ── */
 @media (max-width: 500px) {
   #dialbot-root .screen {
     height: 100vh;
@@ -785,5 +865,13 @@ body {
   #dialbot-root .bubble {
     max-width: 90%;
     font-size: 0.85rem;
+  }
+
+  #dialbot-root .input-bar.centered {
+    width: 92%;
+  }
+
+  #dialbot-root .input-bar-greeting {
+    font-size: 1.45rem;
   }
 }
