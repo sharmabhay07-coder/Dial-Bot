@@ -19,7 +19,6 @@ export default function Chatwindow({
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
-  // true when no real messages yet
   const isEmpty = messages.length === 0;
 
   useEffect(() => {
